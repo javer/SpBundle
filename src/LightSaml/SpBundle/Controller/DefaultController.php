@@ -11,11 +11,23 @@
 
 namespace LightSaml\SpBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use LightSaml\Builder\Profile\Metadata\MetadataProfileBuilder;
+use LightSaml\Builder\Profile\WebBrowserSso\Sp\SsoSpSendAuthnRequestProfileBuilderFactory;
+use LightSaml\SymfonyBridgeBundle\Bridge\Container\BuildContainer;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 
-class DefaultController extends Controller
+class DefaultController extends AbstractController
 {
+    public static function getSubscribedServices()
+    {
+        return array_merge(parent::getSubscribedServices(), [
+            'ligthsaml.profile.metadata' => MetadataProfileBuilder::class,
+            'lightsaml.container.build' => BuildContainer::class,
+            'ligthsaml.profile.login_factory' => SsoSpSendAuthnRequestProfileBuilderFactory::class,
+        ]);
+    }
+
     public function metadataAction()
     {
         $profile = $this->get('ligthsaml.profile.metadata');
