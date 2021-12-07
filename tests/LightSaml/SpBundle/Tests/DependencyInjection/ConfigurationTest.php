@@ -5,18 +5,21 @@ namespace LightSaml\SpBundle\Tests\DependencyInjection;
 use LightSaml\ClaimTypes;
 use LightSaml\SpBundle\DependencyInjection\Configuration;
 use LightSaml\SpBundle\Security\User\SimpleUsernameMapper;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Processor;
 
-class ConfigurationTest extends \PHPUnit_Framework_TestCase
+class ConfigurationTest extends TestCase
 {
-    public function test_allow_empty_configuration()
+    public function test_allow_empty_configuration(): void
     {
+        $this->expectNotToPerformAssertions();
         $emptyConfig = array();
         $this->processConfiguration($emptyConfig);
     }
 
-    public function test_allow_set_username_mapper_scalar_array()
+    public function test_allow_set_username_mapper_scalar_array(): void
     {
+        $this->expectNotToPerformAssertions();
         $config = [
             'light_saml_sp' => [
                 'username_mapper' => [
@@ -27,7 +30,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         $this->processConfiguration($config);
     }
 
-    public function test_sets_default_username_mapper()
+    public function test_sets_default_username_mapper(): void
     {
         $config = ['light_saml_sp' => []];
         $processedConfig = $this->processConfiguration($config);
@@ -53,7 +56,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
      *
      * @return array
      */
-    protected function processConfiguration(array $configs)
+    protected function processConfiguration(array $configs): array
     {
         $configuration = new Configuration();
         $processor = new Processor();

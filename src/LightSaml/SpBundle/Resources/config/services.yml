@@ -13,3 +13,9 @@ services:
 
     lightsaml_sp.token_factory:
         class: LightSaml\SpBundle\Security\Authentication\Token\SamlSpTokenFactory
+
+    LightSaml\SpBundle\Security\User\UsernameMapperInterface: '@lightsaml_sp.username_mapper.simple'
+    LightSaml\Provider\TimeProvider\TimeProviderInterface: '@lightsaml.system.time_provider'
+    LightSaml\Builder\Profile\WebBrowserSso\Sp\SsoSpSendAuthnRequestProfileBuilderFactory: '@ligthsaml.profile.login_factory'
+    LightSaml\Builder\Profile\WebBrowserSso\Sp\SsoSpReceiveResponseProfileBuilder: '@ligthsaml.profile.acs'
+    LightSaml\Builder\Profile\Metadata\MetadataProfileBuilder: '@ligthsaml.profile.metadata'

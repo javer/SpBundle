@@ -11,17 +11,24 @@
 
 namespace LightSaml\SpBundle\Security\Authentication\Token;
 
+use LightSaml\Model\Protocol\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 interface SamlSpTokenFactoryInterface
 {
     /**
-     * @param string              $providerKey
-     * @param array               $attributes
-     * @param mixed               $user
-     * @param SamlSpResponseToken $responseToken
+     * @param UserInterface $user
+     * @param string        $firewallName
+     * @param mixed[]       $attributes
+     * @param Response      $response
      *
      * @return TokenInterface
      */
-    public function create($providerKey, array $attributes, $user, SamlSpResponseToken $responseToken);
+    public function create(
+        UserInterface $user,
+        string $firewallName,
+        array $attributes,
+        Response $response,
+    ): TokenInterface;
 }

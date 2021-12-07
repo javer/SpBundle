@@ -14,18 +14,15 @@ namespace LightSaml\SpBundle\Security\User;
 use LightSaml\Model\Assertion\Assertion;
 use LightSaml\Model\Assertion\Attribute;
 use LightSaml\Model\Assertion\AttributeStatement;
-use LightSaml\SpBundle\Security\Authentication\Token\SamlSpResponseToken;
+use LightSaml\Model\Protocol\Response;
 
 class SimpleAttributeMapper implements AttributeMapperInterface
 {
     /**
-     * @param SamlSpResponseToken $token
-     *
-     * @return array
+     * @return mixed[]
      */
-    public function getAttributes(SamlSpResponseToken $token)
+    public function getAttributes(Response $response): array
     {
-        $response = $token->getResponse();
         $assertions = $response->getAllAssertions();
 
         return array_reduce($assertions, [$this, 'resolveAttributesFromAssertion'], []);
@@ -37,7 +34,7 @@ class SimpleAttributeMapper implements AttributeMapperInterface
      *
      * @return array
      */
-    private function resolveAttributesFromAssertion(array $attributes, Assertion $assertion)
+    private function resolveAttributesFromAssertion(array $attributes, Assertion $assertion): array
     {
         $attributeStatements = $assertion->getAllAttributeStatements();
 
@@ -50,7 +47,10 @@ class SimpleAttributeMapper implements AttributeMapperInterface
      *
      * @return array
      */
-    private function resolveAttributesFromAttributeStatement(array $attributes, AttributeStatement $attributeStatement)
+    private function resolveAttributesFromAttributeStatement(
+        array $attributes,
+        AttributeStatement $attributeStatement,
+    ): array
     {
         $statementAttributes = $attributeStatement->getAllAttributes();
 
@@ -63,7 +63,7 @@ class SimpleAttributeMapper implements AttributeMapperInterface
      *
      * @return array
      */
-    private function mapAttributeValues(array $attributes, Attribute $attribute)
+    private function mapAttributeValues(array $attributes, Attribute $attribute): array
     {
         $key = $attribute->getName();
         $value = $attribute->getAllAttributeValues();

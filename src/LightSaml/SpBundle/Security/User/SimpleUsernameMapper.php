@@ -17,25 +17,18 @@ use LightSaml\SamlConstants;
 
 class SimpleUsernameMapper implements UsernameMapperInterface
 {
-    const NAME_ID = '@name_id@';
-
-    /** @var string[] */
-    private $attributes;
+    public const NAME_ID = '@name_id@';
 
     /**
      * @param string[] $attributes
      */
-    public function __construct(array $attributes)
+    public function __construct(
+        private array $attributes,
+    )
     {
-        $this->attributes = $attributes;
     }
 
-    /**
-     * @param Response $response
-     *
-     * @return string|null
-     */
-    public function getUsername(Response $response)
+    public function getUsername(Response $response): ?string
     {
         foreach ($response->getAllAssertions() as $assertion) {
             $username = $this->getUsernameFromAssertion($assertion);
@@ -47,12 +40,7 @@ class SimpleUsernameMapper implements UsernameMapperInterface
         return null;
     }
 
-    /**
-     * @param Assertion $assertion
-     *
-     * @return null|string
-     */
-    private function getUsernameFromAssertion(Assertion $assertion)
+    private function getUsernameFromAssertion(Assertion $assertion): ?string
     {
         foreach ($this->attributes as $attributeName) {
             if (self::NAME_ID == $attributeName) {

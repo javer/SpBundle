@@ -11,10 +11,11 @@ use LightSaml\Model\Assertion\Subject;
 use LightSaml\Model\Protocol\Response;
 use LightSaml\SamlConstants;
 use LightSaml\SpBundle\Security\User\SimpleUsernameMapper;
+use PHPUnit\Framework\TestCase;
 
-class SimpleUsernameMapperTest extends \PHPUnit_Framework_TestCase
+class SimpleUsernameMapperTest extends TestCase
 {
-    public function resolves_username_from_attributes_provider()
+    public function resolves_username_from_attributes_provider(): array
     {
         return [
             [
@@ -59,20 +60,18 @@ class SimpleUsernameMapperTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider resolves_username_from_attributes_provider
      */
-    public function test_resolves_username_from_attributes(Response $response, $attributeList, $expectedUsername)
+    public function test_resolves_username_from_attributes(
+        Response $response,
+        array $attributeList,
+        ?string $expectedUsername,
+    ): void
     {
         $simpleUsernameMapper = new SimpleUsernameMapper($attributeList);
         $actualUsername = $simpleUsernameMapper->getUsername($response);
         $this->assertEquals($expectedUsername, $actualUsername);
     }
 
-    /**
-     * @param Assertion $assertion
-     * @param Response  $response
-     *
-     * @return \LightSaml\Model\Protocol\Response
-     */
-    private function buildResponse(Assertion $assertion, Response $response = null)
+    private function buildResponse(Assertion $assertion, ?Response $response = null): Response
     {
         if (null == $response) {
             $response = new Response();
@@ -82,15 +81,12 @@ class SimpleUsernameMapperTest extends \PHPUnit_Framework_TestCase
         return $response;
     }
 
-    /**
-     * @param array     $assertionAttributes
-     * @param string    $nameId
-     * @param string    $nameIdFormat
-     * @param Assertion $assertion
-     *
-     * @return \LightSaml\Model\Assertion\Assertion
-     */
-    private function buildAssertion(array $assertionAttributes, $nameId, $nameIdFormat, Assertion $assertion = null)
+    private function buildAssertion(
+        array $assertionAttributes,
+        ?string $nameId,
+        ?string $nameIdFormat,
+        ?Assertion $assertion = null,
+    ): Assertion
     {
         if (null == $assertion) {
             $assertion = new Assertion();

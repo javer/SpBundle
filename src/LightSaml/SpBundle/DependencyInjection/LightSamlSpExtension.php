@@ -28,7 +28,7 @@ class LightSamlSpExtension extends Extension
      *
      * @api
      */
-    public function load(array $config, ContainerBuilder $container)
+    public function load(array $config, ContainerBuilder $container): void
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $config);

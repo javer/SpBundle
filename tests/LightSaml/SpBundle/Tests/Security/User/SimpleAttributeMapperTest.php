@@ -6,12 +6,12 @@ use LightSaml\Model\Assertion\Assertion;
 use LightSaml\Model\Assertion\Attribute;
 use LightSaml\Model\Assertion\AttributeStatement;
 use LightSaml\Model\Protocol\Response;
-use LightSaml\SpBundle\Security\Authentication\Token\SamlSpResponseToken;
 use LightSaml\SpBundle\Security\User\SimpleAttributeMapper;
+use PHPUnit\Framework\TestCase;
 
-class SimpleAttributeMapperTest extends \PHPUnit_Framework_TestCase
+class SimpleAttributeMapperTest extends TestCase
 {
-    public function test_get_attributes_from_single_assertion_response()
+    public function test_get_attributes_from_single_assertion_response(): void
     {
         $assertion = $this->buildAssertion([
             'organization' => 'test',
@@ -20,7 +20,6 @@ class SimpleAttributeMapperTest extends \PHPUnit_Framework_TestCase
             'test' => ['one', 'two'],
         ]);
         $response = $this->buildResponse($assertion);
-        $samlSpResponseToken = $this->buildSamlSpResponseToken($response);
 
         $expectedAttributes = [
             'organization' => 'test',
@@ -30,12 +29,12 @@ class SimpleAttributeMapperTest extends \PHPUnit_Framework_TestCase
         ];
 
         $simpleAttributeMapper = new SimpleAttributeMapper();
-        $actualAttributes = $simpleAttributeMapper->getAttributes($samlSpResponseToken);
+        $actualAttributes = $simpleAttributeMapper->getAttributes($response);
 
         $this->assertEquals($expectedAttributes, $actualAttributes);
     }
 
-    public function test_get_attributes_from_multi_assertions_response()
+    public function test_get_attributes_from_multi_assertions_response(): void
     {
         $assertion = $this->buildAssertion([
             'organization' => 'test',
@@ -43,6 +42,7 @@ class SimpleAttributeMapperTest extends \PHPUnit_Framework_TestCase
             'email_address' => 'john@domain.com',
             'test' => ['one', 'two'],
         ]);
+
         $response = $this->buildResponse($assertion);
 
         $assertion = $this->buildAssertion([
@@ -50,9 +50,8 @@ class SimpleAttributeMapperTest extends \PHPUnit_Framework_TestCase
             'email_address' => 'doe@domain.com',
             'test' => ['three', 'four'],
         ]);
-        $response = $this->buildResponse($assertion, $response);
 
-        $samlSpResponseToken = $this->buildSamlSpResponseToken($response);
+        $response = $this->buildResponse($assertion, $response);
 
         $expectedAttributes = [
             'organization' => 'test',
@@ -62,12 +61,12 @@ class SimpleAttributeMapperTest extends \PHPUnit_Framework_TestCase
         ];
 
         $simpleAttributeMapper = new SimpleAttributeMapper();
-        $actualAttributes = $simpleAttributeMapper->getAttributes($samlSpResponseToken);
+        $actualAttributes = $simpleAttributeMapper->getAttributes($response);
 
         $this->assertEquals($expectedAttributes, $actualAttributes);
     }
 
-    public function test_get_attributes_from_multi_attribute_statements_response()
+    public function test_get_attributes_from_multi_attribute_statements_response(): void
     {
         $assertion = $this->buildAssertion([
             'organization' => 'test',
@@ -75,14 +74,14 @@ class SimpleAttributeMapperTest extends \PHPUnit_Framework_TestCase
             'email_address' => 'john@domain.com',
             'test' => ['one', 'two']
         ]);
+
         $assertion = $this->buildAssertion([
             'name' => 'Doe',
             'email_address' => 'doe@domain.com',
             'test' => ['three', 'four']
         ], $assertion);
-        $response = $this->buildResponse($assertion);
 
-        $samlSpResponseToken = $this->buildSamlSpResponseToken($response);
+        $response = $this->buildResponse($assertion);
 
         $expectedAttributes = [
             'organization' => 'test',
@@ -92,28 +91,12 @@ class SimpleAttributeMapperTest extends \PHPUnit_Framework_TestCase
         ];
 
         $simpleAttributeMapper = new SimpleAttributeMapper();
-        $actualAttributes = $simpleAttributeMapper->getAttributes($samlSpResponseToken);
+        $actualAttributes = $simpleAttributeMapper->getAttributes($response);
 
         $this->assertEquals($expectedAttributes, $actualAttributes);
     }
 
-    /**
-     * @param Response $response
-     *
-     * @return \LightSaml\SpBundle\Security\Authentication\Token\SamlSpResponseToken
-     */
-    private function buildSamlSpResponseToken(Response $response)
-    {
-        return new SamlSpResponseToken($response, 'test');
-    }
-
-    /**
-     * @param Assertion $assertion
-     * @param Response $response
-     *
-     * @return Response
-     */
-    private function buildResponse(Assertion $assertion, Response $response = null)
+    private function buildResponse(Assertion $assertion, ?Response $response = null): Response
     {
         if (null == $response) {
             $response = new Response();
@@ -124,19 +107,14 @@ class SimpleAttributeMapperTest extends \PHPUnit_Framework_TestCase
         return $response;
     }
 
-    /**
-     * @param array $assertionAttributes
-     * @param Assertion $assertion
-     *
-     * @return Assertion
-     */
-    private function buildAssertion(array $assertionAttributes, Assertion $assertion = null)
+    private function buildAssertion(array $assertionAttributes, ?Assertion $assertion = null): Assertion
     {
         if (null == $assertion) {
             $assertion = new Assertion();
         }
 
         $assertion->addItem($attributeStatement = new AttributeStatement());
+
         foreach ($assertionAttributes as $attributeName => $attributeValue) {
             $attributeStatement->addAttribute(new Attribute($attributeName, $attributeValue));
         }

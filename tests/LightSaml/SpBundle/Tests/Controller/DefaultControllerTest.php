@@ -2,10 +2,17 @@
 
 namespace LightSaml\SpBundle\Tests\Controller;
 
+use LightSaml\Action\ActionInterface;
+use LightSaml\Builder\Profile\ProfileBuilderInterface;
+use LightSaml\Context\Profile\HttpResponseContext;
+use LightSaml\Context\Profile\ProfileContext;
 use LightSaml\SpBundle\Controller\DefaultController;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-class DefaultControllerTest extends \PHPUnit_Framework_TestCase
+class DefaultControllerTest extends TestCase
 {
     public function test_metadata_action_returns_response_from_profile()
     {
@@ -40,45 +47,28 @@ class DefaultControllerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expectedResponse, $actualResponse);
     }
 
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\Symfony\Component\DependencyInjection\ContainerInterface
-     */
-    private function getContainerMock()
+    private function getContainerMock(): MockObject|ContainerInterface
     {
-        return $this->getMockBuilder(\Symfony\Component\DependencyInjection\ContainerInterface::class)->getMock();
+        return $this->createMock(ContainerInterface::class);
     }
 
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\LightSaml\Builder\Profile\ProfileBuilderInterface
-     */
-    private function getProfileBuilderMock()
+    private function getProfileBuilderMock(): MockObject|ProfileBuilderInterface
     {
-        return $this->getMockBuilder(\LightSaml\Builder\Profile\ProfileBuilderInterface::class)->getMock();
+        return $this->createMock(ProfileBuilderInterface::class);
     }
 
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\LightSaml\Context\Profile\ProfileContext
-     */
-    private function getContextMock()
+    private function getContextMock(): MockObject|ProfileContext
     {
-        return $this->getMockBuilder(\LightSaml\Context\Profile\ProfileContext::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        return $this->createMock(ProfileContext::class);
     }
 
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\LightSaml\Action\ActionInterface
-     */
-    private function getActionMock()
+    private function getActionMock(): MockObject|ActionInterface
     {
-        return $this->getMockBuilder(\LightSaml\Action\ActionInterface::class)->getMock();
+        return $this->createMock(ActionInterface::class);
     }
 
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\LightSaml\Context\Profile\HttpResponseContext
-     */
-    private function getHttpResponseContextMock()
+    private function getHttpResponseContextMock(): MockObject|HttpResponseContext
     {
-        return $this->getMockBuilder(\LightSaml\Context\Profile\HttpResponseContext::class)->getMock();
+        return $this->createMock(HttpResponseContext::class);
     }
 }

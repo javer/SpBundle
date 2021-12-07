@@ -3,15 +3,17 @@
 namespace LightSaml\SpBundle\Tests\Security\Authentication\Token;
 
 use LightSaml\Model\Protocol\Response;
-use LightSaml\SpBundle\Security\Authentication\Token\SamlSpResponseToken;
 use LightSaml\SpBundle\Security\Authentication\Token\SamlSpToken;
 use LightSaml\SpBundle\Security\Authentication\Token\SamlSpTokenFactory;
-use Symfony\Component\Security\Core\User\User;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Security\Core\User\InMemoryUser;
 
-class SamlSpTokenFactoryTest extends \PHPUnit_Framework_TestCase
+class SamlSpTokenFactoryTest extends TestCase
 {
-    public function test_constructs_wout_arguments()
+    public function test_constructs_wout_arguments(): void
     {
+        $this->expectNotToPerformAssertions();
+
         new SamlSpTokenFactory();
     }
 
@@ -20,16 +22,16 @@ class SamlSpTokenFactoryTest extends \PHPUnit_Framework_TestCase
         $factory = new SamlSpTokenFactory();
 
         $token = $factory->create(
-            $providerKey = 'main',
+            $user = new InMemoryUser('joe', '', ['ROLE_USER']),
+            'main',
             $attributes = ['a'=>1],
-            $user = new User('joe', '', ['ROLE_USER']),
-            $responseToken = new SamlSpResponseToken(new Response(), $providerKey)
+            new Response(),
         );
 
         $this->assertInstanceOf(SamlSpToken::class, $token);
-        $roles = $token->getRoles();
-        $this->assertCount(1, $roles);
-        $this->assertEquals('ROLE_USER', $roles[0]->getRole());
+        $roleNames = $token->getRoleNames();
+        $this->assertCount(1, $roleNames);
+        $this->assertEquals('ROLE_USER', $roleNames[0]);
         $this->assertEquals($attributes, $token->getAttributes());
         $this->assertSame($user, $token->getUser());
     }

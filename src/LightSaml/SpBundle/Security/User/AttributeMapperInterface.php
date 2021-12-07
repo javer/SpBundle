@@ -11,14 +11,9 @@
 
 namespace LightSaml\SpBundle\Security\User;
 
-use LightSaml\SpBundle\Security\Authentication\Token\SamlSpResponseToken;
+use LightSaml\Model\Protocol\Response;
 
 interface AttributeMapperInterface
 {
-    /**
-     * @param SamlSpResponseToken $token
-     *
-     * @return array
-     */
-    public function getAttributes(SamlSpResponseToken $token);
+    public function getAttributes(Response $response): array;
 }

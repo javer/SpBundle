@@ -2,11 +2,16 @@
 
 namespace LightSaml\SpBundle\Tests;
 
+use LightSaml\SpBundle\DependencyInjection\Security\Factory\LightSamlSpFactory;
 use LightSaml\SpBundle\LightSamlSpBundle;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\SecurityBundle\DependencyInjection\SecurityExtension;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-class LightSamlSpBundleTest extends \PHPUnit_Framework_TestCase
+class LightSamlSpBundleTest extends TestCase
 {
-    public function test_build_adds_security_extension()
+    public function test_build_adds_security_extension(): void
     {
         $bundle = new LightSamlSpBundle();
 
@@ -17,25 +22,19 @@ class LightSamlSpBundleTest extends \PHPUnit_Framework_TestCase
             ->willReturn($extensionMock = $this->getExtensionMock());
 
         $extensionMock->expects($this->once())
-            ->method('addSecurityListenerFactory')
-            ->with($this->isInstanceOf(\LightSaml\SpBundle\DependencyInjection\Security\Factory\LightSamlSpFactory::class));
+            ->method('addAuthenticatorFactory')
+            ->with($this->isInstanceOf(LightSamlSpFactory::class));
 
         $bundle->build($containerBuilderMock);
     }
 
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\Symfony\Component\DependencyInjection\ContainerBuilder
-     */
-    private function getContainerBuilderMock()
+    private function getContainerBuilderMock(): MockObject|ContainerBuilder
     {
-        return $this->getMockBuilder(\Symfony\Component\DependencyInjection\ContainerBuilder::class)->getMock();
+        return $this->createMock(ContainerBuilder::class);
     }
 
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\Symfony\Bundle\SecurityBundle\DependencyInjection\SecurityExtension
-     */
-    private function getExtensionMock()
+    private function getExtensionMock(): MockObject|SecurityExtension
     {
-        return $this->getMockBuilder(\Symfony\Bundle\SecurityBundle\DependencyInjection\SecurityExtension::class)->getMock();
+        return $this->createMock(SecurityExtension::class);
     }
 }

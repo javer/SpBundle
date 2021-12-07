@@ -5,26 +5,25 @@ namespace LightSaml\SpBundle\Tests\Functional;
 use LightSaml\State\Sso\SsoSessionState;
 use LightSaml\State\Sso\SsoState;
 use LightSaml\Store\Sso\SsoStateStoreInterface;
+use SimpleXMLElement;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class FunctionalTest extends WebTestCase
 {
     const OWN_ENTITY_ID = 'https://localhost/lightSAML/SPBundle';
 
-    protected function setUp()
+    protected function setUp(): void
     {
-        parent::setUp();
         require_once __DIR__.'/app/AppKernel.php';
-        $_SERVER['KERNEL_CLASS'] = \AppKernel::class;
-        $_SERVER['KERNEL_DIR'] = __DIR__.'/app';
-        $fs = new Filesystem();
-        $fs->remove(__DIR__.'/app/cache');
     }
 
+    protected static function getKernelClass(): string
+    {
+        return \AppKernel::class;
+    }
 
-    public function test_metadata()
+    public function test_metadata(): void
     {
         $client = static::createClient();
 
@@ -34,7 +33,7 @@ class FunctionalTest extends WebTestCase
 
         $xml = $client->getResponse()->getContent();
 
-        $root = new \SimpleXMLElement($xml);
+        $root = new SimpleXMLElement($xml);
         $this->assertEquals('EntityDescriptor', $root->getName());
         $this->assertEquals(self::OWN_ENTITY_ID, $root['entityID']);
         $this->assertEquals(1, $root->SPSSODescriptor->count());
@@ -42,7 +41,7 @@ class FunctionalTest extends WebTestCase
         $this->assertEquals(1, $root->SPSSODescriptor->AssertionConsumerService->count());
     }
 
-    public function test_discovery()
+    public function test_discovery(): void
     {
         $client = static::createClient();
 
@@ -61,10 +60,10 @@ class FunctionalTest extends WebTestCase
         $this->assertArrayHasKey('https://idp.testshib.org/idp/shibboleth', $arr);
     }
 
-    public function test_login()
+    public function test_login(): void
     {
         $client = static::createClient();
-        $client->getContainer()->set('session', $sessionMock = $this->getMockBuilder(SessionInterface::class)->getMock());
+        $client->getContainer()->set('session', $this->createMock(SessionInterface::class));
 
         $crawler = $client->request('GET', '/saml/login?idp=https://localhost/lightSAML/lightSAML-IDP');
 
@@ -79,20 +78,20 @@ class FunctionalTest extends WebTestCase
         $code = $crawlerSamlRequest->first()->attr('value');
         $xml = base64_decode($code);
 
-        $root = new \SimpleXMLElement($xml);
+        $root = new SimpleXMLElement($xml);
         $this->assertEquals('AuthnRequest', $root->getName());
         $this->assertEquals('https://localhost/lightsaml/lightSAML-IDP/web/idp/login.php', $root['Destination']);
         $this->assertEquals(1, $root->children('saml', true)->Issuer->count());
         $this->assertEquals(self::OWN_ENTITY_ID, (string)$root->children('saml', true)->Issuer);
     }
 
-    public function test_sessions()
+    public function test_sessions(): void
     {
         $ssoState = new SsoState();
         $ssoState->addSsoSession((new SsoSessionState())->setIdpEntityId('idp1')->setSpEntityId('sp1'));
         $ssoState->addSsoSession((new SsoSessionState())->setIdpEntityId('idp2')->setSpEntityId('sp2'));
 
-        $ssoStateStoreMock = $this->getMockBuilder(SsoStateStoreInterface::class)->getMock();
+        $ssoStateStoreMock = $this->createMock(SsoStateStoreInterface::class);
         $ssoStateStoreMock->method('get')
             ->willReturn($ssoState);
 
@@ -108,6 +107,5 @@ class FunctionalTest extends WebTestCase
         $this->assertEquals('sp1', $crawlerSessions->first()->filter('li[data-sp]')->attr('data-sp'));
         $this->assertEquals('idp2', $crawlerSessions->last()->filter('li[data-idp]')->attr('data-idp'));
         $this->assertEquals('sp2', $crawlerSessions->last()->filter('li[data-sp]')->attr('data-sp'));
-
     }
 }

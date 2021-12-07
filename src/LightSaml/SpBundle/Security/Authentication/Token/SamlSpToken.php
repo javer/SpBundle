@@ -11,47 +11,26 @@
 
 namespace LightSaml\SpBundle\Security\Authentication\Token;
 
-use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 
-class SamlSpToken extends AbstractToken
+class SamlSpToken extends PostAuthenticationToken
 {
-    /** @var string */
-    private $providerKey;
-
     /**
-     * @param array         $roles
-     * @param string        $providerKey
-     * @param array         $attributes
-     * @param string|object $user
+     * @param UserInterface $user
+     * @param string        $firewallName
+     * @param string[]      $roles
+     * @param mixed[]       $attributes
      */
-    public function __construct(array $roles, $providerKey, array $attributes, $user)
+    public function __construct(
+        UserInterface $user,
+        string $firewallName,
+        array $roles,
+        array $attributes,
+    )
     {
-        parent::__construct($roles);
+        parent::__construct($user, $firewallName, $roles);
 
-        $this->providerKey = $providerKey;
         $this->setAttributes($attributes);
-        if ($user) {
-            $this->setUser($user);
-        }
-
-        $this->setAuthenticated(true);
-    }
-
-    /**
-     * Returns the user credentials.
-     *
-     * @return mixed The user credentials
-     */
-    public function getCredentials()
-    {
-        return '';
-    }
-
-    /**
-     * @return string
-     */
-    public function getProviderKey()
-    {
-        return $this->providerKey;
     }
 }
