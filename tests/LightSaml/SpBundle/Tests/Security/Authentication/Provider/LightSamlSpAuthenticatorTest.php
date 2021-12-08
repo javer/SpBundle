@@ -104,14 +104,22 @@ class LightSamlSpAuthenticatorTest extends TestCase
                 $this->assertSame($contextMock, $context);
             });
 
+        $expectedUsername = 'some.username';
         $user = $this->getUserMock();
+        $user
+            ->method(method_exists(UserInterface::class, 'getUserIdentifier') ? 'getUserIdentifier' : 'getUsername')
+            ->willReturn($expectedUsername);
 
         $usernameMapperMock->expects($this->once())
             ->method('getUsername')
-            ->willReturn($expectedUsername = 'some.username');
+            ->willReturn($expectedUsername);
 
         $userProviderMock->expects($this->once())
-            ->method('loadUserByIdentifier')
+            ->method(
+                method_exists(UserProviderInterface::class, 'loadUserByIdentifier')
+                    ? 'loadUserByIdentifier'
+                    : 'loadUserByUsername'
+            )
             ->with($expectedUsername)
             ->willReturn($user);
 
@@ -137,8 +145,14 @@ class LightSamlSpAuthenticatorTest extends TestCase
         $user->expects($this->any())
             ->method('getRoles')
             ->willReturn($expectedRoles = ['foo', 'bar']);
+        $user
+            ->method(method_exists(UserInterface::class, 'getUserIdentifier') ? 'getUserIdentifier' : 'getUsername')
+            ->willReturn('some.username');
 
-        $passport = new SelfValidatingPassport(new UserBadge($user->getUserIdentifier(), static fn() => $user));
+        $passport = new SelfValidatingPassport(new UserBadge(
+            method_exists($user, 'getUserIdentifier') ? $user->getUserIdentifier() : $user->getUsername(),
+            static fn() => $user,
+        ));
         $passport->setAttribute(LightSamlSpAuthenticator::PASSPORT_ATTRIBUTES, $attributes);
         $passport->setAttribute(LightSamlSpAuthenticator::PASSPORT_SAML_RESPONSE, $samlResponse);
 
@@ -180,6 +194,9 @@ class LightSamlSpAuthenticatorTest extends TestCase
         $user->expects($this->any())
             ->method('getRoles')
             ->willReturn(['foo', 'bar']);
+        $user
+            ->method(method_exists(UserInterface::class, 'getUserIdentifier') ? 'getUserIdentifier' : 'getUsername')
+            ->willReturn('some.username');
 
         $userCreatorMock->expects($this->once())
             ->method('createUser')
@@ -220,17 +237,25 @@ class LightSamlSpAuthenticatorTest extends TestCase
             ->method('getInboundMessage')
             ->willReturn($samlResponse);
 
+        $expectedUsername = 'some.username';
         $user = $this->getUserMock();
         $user->expects($this->any())
             ->method('getRoles')
             ->willReturn(['foo', 'bar']);
+        $user
+            ->method(method_exists(UserInterface::class, 'getUserIdentifier') ? 'getUserIdentifier' : 'getUsername')
+            ->willReturn($expectedUsername);
 
         $usernameMapperMock->expects($this->once())
             ->method('getUsername')
-            ->willReturn($expectedUsername = 'some.username');
+            ->willReturn($expectedUsername);
 
         $userProviderMock->expects($this->once())
-            ->method('loadUserByIdentifier')
+            ->method(
+                method_exists(UserProviderInterface::class, 'loadUserByIdentifier')
+                    ? 'loadUserByIdentifier'
+                    : 'loadUserByUsername'
+            )
             ->with($expectedUsername)
             ->willThrowException(new UserNotFoundException());
 
@@ -272,17 +297,25 @@ class LightSamlSpAuthenticatorTest extends TestCase
             ->method('getInboundMessage')
             ->willReturn($samlResponse);
 
+        $expectedUsername = 'some.username';
         $user = $this->getUserMock();
         $user->expects($this->any())
             ->method('getRoles')
             ->willReturn(['foo', 'bar']);
+        $user
+            ->method(method_exists(UserInterface::class, 'getUserIdentifier') ? 'getUserIdentifier' : 'getUsername')
+            ->willReturn($expectedUsername);
 
         $usernameMapperMock->expects($this->once())
             ->method('getUsername')
-            ->willReturn($expectedUsername = 'some.username');
+            ->willReturn($expectedUsername);
 
         $userProviderMock->expects($this->once())
-            ->method('loadUserByIdentifier')
+            ->method(
+                method_exists(UserProviderInterface::class, 'loadUserByIdentifier')
+                    ? 'loadUserByIdentifier'
+                    : 'loadUserByUsername'
+            )
             ->with($expectedUsername)
             ->willReturn($user);
 
@@ -313,6 +346,9 @@ class LightSamlSpAuthenticatorTest extends TestCase
         $user->expects($this->any())
             ->method('getRoles')
             ->willReturn(['foo', 'bar']);
+        $user
+            ->method(method_exists(UserInterface::class, 'getUserIdentifier') ? 'getUserIdentifier' : 'getUsername')
+            ->willReturn('some.username');
 
         $token = new SamlSpToken($user, $firewallName, [], $attributes);
 
@@ -321,7 +357,10 @@ class LightSamlSpAuthenticatorTest extends TestCase
             ->with($user, $firewallName, $attributes, $samlResponse)
             ->willReturn($token);
 
-        $passport = new SelfValidatingPassport(new UserBadge($user->getUserIdentifier(), static fn() => $user));
+        $passport = new SelfValidatingPassport(new UserBadge(
+            method_exists($user, 'getUserIdentifier') ? $user->getUserIdentifier() : $user->getUsername(),
+            static fn() => $user,
+        ));
         $passport->setAttribute(LightSamlSpAuthenticator::PASSPORT_ATTRIBUTES, $attributes);
         $passport->setAttribute(LightSamlSpAuthenticator::PASSPORT_SAML_RESPONSE, $samlResponse);
 

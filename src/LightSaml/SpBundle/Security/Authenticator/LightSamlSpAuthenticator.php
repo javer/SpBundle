@@ -59,7 +59,10 @@ class LightSamlSpAuthenticator extends AbstractAuthenticator
 
         $attributes = $this->getAttributes($samlResponse);
 
-        $passport = new SelfValidatingPassport(new UserBadge($user->getUserIdentifier(), static fn() => $user));
+        $passport = new SelfValidatingPassport(new UserBadge(
+            method_exists($user, 'getUserIdentifier') ? $user->getUserIdentifier() : $user->getUsername(),
+            static fn() => $user,
+        ));
         $passport->setAttribute(self::PASSPORT_ATTRIBUTES, $attributes);
         $passport->setAttribute(self::PASSPORT_SAML_RESPONSE, $samlResponse);
 
@@ -130,7 +133,9 @@ class LightSamlSpAuthenticator extends AbstractAuthenticator
 
         $username = $this->usernameMapper->getUsername($samlResponse);
 
-        return $this->userProvider->loadUserByIdentifier($username);
+        return method_exists($this->userProvider, 'loadUserByIdentifier')
+            ? $this->userProvider->loadUserByIdentifier($username)
+            : $this->userProvider->loadUserByUsername($username);
     }
 
     protected function createUser(LightSamlResponse $samlResponse): ?UserInterface
