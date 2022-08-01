@@ -133,6 +133,10 @@ class LightSamlSpAuthenticator extends AbstractAuthenticator
 
         $username = $this->usernameMapper->getUsername($samlResponse);
 
+        if (null === $username) {
+            throw new UserNotFoundException();
+        }
+
         return method_exists($this->userProvider, 'loadUserByIdentifier')
             ? $this->userProvider->loadUserByIdentifier($username)
             : $this->userProvider->loadUserByUsername($username);

@@ -270,6 +270,55 @@ class LightSamlSpAuthenticatorTest extends TestCase
         $authenticator->authenticate(Request::create('/'));
     }
 
+    public function test_throws_authentication_exception_if_there_is_no_username_in_response(): void
+    {
+        $authenticator = new LightSamlSpAuthenticator(
+            'main',
+            $this->getHttpUtilsMock(),
+            $profileBuilderMock = $this->getProfileBuilderMock(),
+            userProvider: $userProviderMock = $this->getUserProviderMock(),
+            usernameMapper: $usernameMapperMock = $this->getUsernameMapperMock(),
+            userCreator: $userCreatorMock = $this->getUserCreatorMock(),
+        );
+
+        $actionMock = $this->getActionMock();
+        $contextMock = $this->getContextMock();
+
+        $profileBuilderMock
+            ->method('buildContext')
+            ->willReturn($contextMock);
+        $profileBuilderMock
+            ->method('buildAction')
+            ->willReturn($actionMock);
+
+        $samlResponse = new Response();
+
+        $contextMock
+            ->method('getInboundMessage')
+            ->willReturn($samlResponse);
+
+        $usernameMapperMock
+            ->method('getUsername')
+            ->willReturn(null);
+
+        $userProviderMock->expects($this->never())
+            ->method(
+                method_exists(UserProviderInterface::class, 'loadUserByIdentifier')
+                    ? 'loadUserByIdentifier'
+                    : 'loadUserByUsername'
+            );
+
+        $userCreatorMock->expects($this->once())
+            ->method('createUser')
+            ->with($samlResponse)
+            ->willReturn(null);
+
+        $this->expectException(AuthenticationException::class);
+        $this->expectExceptionMessage('Unable to resolve user');
+
+        $authenticator->authenticate(Request::create('/'));
+    }
+
     public function test_creates_authenticated_token_with_attributes_from_attribute_mapper(): void
     {
         $authenticator = new LightSamlSpAuthenticator(
