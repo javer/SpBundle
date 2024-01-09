@@ -18,7 +18,6 @@ monolog:
             level: debug
 
 security:
-    enable_authenticator_manager: true
     providers:
         dummy:
             memory: ~
